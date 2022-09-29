@@ -5,4 +5,4 @@
 #### Group Members:
 - Julia Jose
 - Julia Kaczmarczyk
-- Akira .. hello!
+- Akira Ishiyama
