@@ -5,4 +5,4 @@
 #### Group Members:
 - Julia Jose
 - Julia ..
-- Akira ..
+- Akira .. hello!
