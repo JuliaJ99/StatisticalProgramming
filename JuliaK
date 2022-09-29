@@ -1,0 +1,22 @@
+
+
+setwd("C:\\Users\\kaklu\\OneDrive\\Documents")
+a <- scan("pg10.txt",what="character",skip=104) ## skip contents
+n <- length(a)
+a <- a[-((n-2886):n)] ## strip license
+a <- a[-grep("[0123456789]:[0123456789]",a)] ## strip out verse numbers
+
+split_punct <- function(x) {
+  index <- grep('[,.;!:?]',x)
+  j=0
+  for (i in index){
+    x <- append(x,x[i+j],i+j)
+    x[i+j] <- gsub('[,.;!:?]','',x)[i+j]
+    x[i+1+j] <- gsub('[^,.;!:?]','',x)[i+1+j]
+    j=j+1
+  }
+  x
+}
+split_punct(a)
+
+a_1 <- a[1:20]
