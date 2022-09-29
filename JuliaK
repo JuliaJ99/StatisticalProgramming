@@ -7,7 +7,7 @@ a <- a[-((n-2886):n)] ## strip license
 a <- a[-grep("[0123456789]:[0123456789]",a)] ## strip out verse numbers
 
 split_punct <- function(x) {
-  sub('(.)([,.;!:?])','\\1£\\2',x) |> 
+  gsub('(.)([,.;!:?])','\\1£\\2',x) |> 
     paste('£',sep="") |> 
     paste(collapse="") |>
     strsplit('£')
