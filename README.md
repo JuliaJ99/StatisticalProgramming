@@ -4,5 +4,5 @@
 
 #### Group Members:
 - Julia Jose
-- Julia ..
+- Julia Kaczmarczyk
 - Akira .. hello!
