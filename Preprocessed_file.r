@@ -14,6 +14,9 @@ split_punct <- function(x) {
 
 a <- split_punct(a)[[1]]
 a[0:30]
+
+# ------- #
+
 # (a) # Determine unique words
 
 unique_words = unique(tolower(a))
