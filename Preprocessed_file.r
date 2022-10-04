@@ -41,10 +41,19 @@ tail(head(sort(tab,decreasing=TRUE),n=500))
 b <- (unique_words[tab>=163])
 b 
 
+# -------- Task 10: Capitalising the words --------------
+new_index_vector <- match(a,unique_words) #NA are uppercase words
+new_tab <- tabulate(new_index_vector) #count of the lowercase words
+upper_probab <-(tab-new_tab)/tab #the proportion of the uppercase words overall
+upper <- unique_words[upper_probab>0.5] #we choose the words that have the proportion of uppercase greater than 0.5
+b_upper <- b[b%in%upper] #we compre the words with wector b
+substr(b_upper, 1, 1) <- toupper(substr(b_upper, 1, 1)) #we capitalise the words
+b[b%in%upper] <- b_upper #we substitute the lowercase words with uppercase
+
 # -------- Task 7: Generating matrix T -------------------
 
 # (a)
-index_vector_freq <- match(tolower(a),b)
+index_vector_freq <- match(tolower(a),tolower(b))
 index_vector_freq[0:20]
 
 vec2 <- index_vector_freq[2:length(index_vector_freq)] |> append(NA)
@@ -89,34 +98,34 @@ for (row in 1:length(col_matrix_A[,1])){
 vector_S <- tabulate(index_vector_freq)
 
 # ------------ Task 8: Model
-index_text <- vector('numeric',50)
-first <- sample(500, size=1,prob=vector_S)
+index_text <- vector( "numeric" , 50 )
+first <- sample(500, size=1, prob=vector_S)
 index_text[1] <- first
 if (sum(A_matrix[first,])>0){
-	second <- sample(500,size=2,prob=A_matrix[first,])
-} else{
-	second <- sample(500,size=1,prob=vector_S)
+  second <- sample(500, size=1, prob=A_matrix[first,])
+} else {
+  second <- sample(500, size=1, prob=vector_S)
 }
 index_text[2] <- second
 for (i in 3:50){
-	if (sum(T_matrix[first,second,])>0){
-		index_text[i] <- sample(500,size=1,prob=T_matrix[first,second,])
-	} else {
-		if(sum(A_matrix[second,])>0){
-			index_text[i] <- sample(500,size=1,prob=A_matrix[second,])
-		} else {
-			index_text[i] <- sample(500,size=1,prob=vector_S)
-		}
-	}
-	first <- second
-	second <- index_text[i]
+  if (sum(T_matrix[first,second,])>0){
+    index_text[i] <- sample(500, size=1, prob=T_matrix[first,second,])
+  } else{
+    if (sum(A_matrix[second,])>0){
+      index_text[i] <- sample(500, size=1, prob=A_matrix[second,])
+    } else{
+      index_text[i] <- sample(500, size=1, prob=vector_S)
+    }
+  }
+  first <- second
+  second <- index_text[i]
 }
 
 cat(b[index_text])
 
-# -------------- Task 9: Simpler model
+# ------------ Task 9: Model simpler
 
-cat(b[sample(500,size=50,prob=vector_S)])
+cat(b[sample(1:500, size=50, prob=vector_S)])
 
 
 # --------------Simulation
