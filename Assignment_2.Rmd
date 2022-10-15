@@ -1,0 +1,137 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+Pone <- function(n,k,strategy=1,nreps=10000){
+  success <- 0
+  prisoners <- 2*n
+  person <- k
+  #strategy 3
+  if (strategy == 3){
+    for (a in 1:nreps){
+      picks <- sample(prisoners,n)
+      if (person %in% picks){
+        success = success +1
+      }
+    }
+  } else {for (a in 1:nreps){
+    boxes <- sample(prisoners)
+    picks <- rep(0,n)
+    #strategy 2
+    if (strategy == 2){
+      k <- sample(prisoners,1)
+    }
+    card <- boxes[k]
+    picks[1] <- card
+    for (i in 1:n-1){
+      if (person == card){
+        success <- success + 1
+        break
+        }
+      card <- boxes[card]
+      picks[i+1] <- card
+    }
+  }
+  }
+  success/nreps
+  }
+```
+# Pone final version
+
+```{r}
+Pone <- function(n,k,strategy=1,nreps=10000){
+  success <- 0
+  prisoners <- 2*n
+  person <- k
+  #strategy 3
+  if (strategy == 3){
+    for (a in 1:nreps){
+      picks <- sample(prisoners,n)
+      if (person %in% picks){
+        success = success +1
+      }
+    }
+  } else {for (a in 1:nreps){
+    boxes <- sample(prisoners)
+    #strategy 2
+    if (strategy == 2){
+      k <- sample(prisoners,1)
+    }
+    card <- boxes[k]
+    for (i in 1:n-1){
+      if (person == card){
+        success <- success + 1
+        break
+        }
+      card <- boxes[card]
+    }
+  }
+  }
+  success/nreps
+  }
+```
+
+```{r}
+Pall <- function(n,strategy=1,nreps=10000){
+  
+
+  success <- 0
+  prisoners <- 2*n
+  #strategy 3
+    if (strategy == 3){
+      for (a in 1:nreps){
+        p_success<-0
+        
+        for (j in 1:prisoners){
+          picks <- sample(prisoners,n)
+      
+          if (!(j %in% picks)){
+            break
+            }
+          else{
+            p_success<-p_success+1
+            }
+        }
+        
+        if (p_success == prisoners){
+          success<- success+1
+        }
+      }
+    }
+    else {
+      for (a in 1:nreps){
+      
+        boxes <- sample(prisoners)
+        p_success<-0
+        for (j in 1:prisoners){
+          first<-j # Assign prisoner no to first box, strategy 1 default
+          
+          # strategy 2
+          if (strategy == 2){
+            first <- sample(prisoners,1) #IF strategy 2 chosen, assign random no
+          }
+        card <- boxes[first]
+          for (i in 1:n-1){
+            if (j == card){
+              p_success <- p_success + 1
+              break
+            }
+            card <- boxes[card]
+          }
+        if(p_success==prisoners){
+          success<-success+1
+        }
+        }
+      }
+    
+    }
+  success/nreps
+}
+```
+
+```{r}
+Pall(4,2,10000)
+```
+
