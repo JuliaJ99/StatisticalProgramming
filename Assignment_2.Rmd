@@ -132,6 +132,59 @@ Pall <- function(n,strategy=1,nreps=10000){
 ```
 
 ```{r}
-Pall(4,2,10000)
+Pall(50,3,1000)
+```
+
+```{r}
+# dloop
+dloop <- function(n,nreps){
+  
+  #The vector we want in the end
+  loop_lengths<-rep(0,(2*n))
+  
+  for (sim in 1:nreps){
+    # Since the qs asks whether a loop of that length has occurred 'atleast' once for a random shuffle of boxes(and not the total no of times each loop length), for each simulation we create a vector of zeroes and add to it to indicate whether a loop of that length has occurred in the current simulation atleast once
+    current_sim_loop_len<- rep(0,(2*n))
+    
+    # Shuffle and assign card numbers to boxes
+    boxes<-sample(2*n)
+    number_loop_len<-1
+    
+    for(i in 1: (2*n)){
+      # For indexing card inside first box
+      index<-i
+      
+      # Number of loops it takes to get box=card for number i. Minimum no of loops is 1
+      number_loop_len<-1
+      
+      # Nesting until the box number= card
+        while(boxes[index] != i){
+          index<-boxes[index]
+          number_loop_len<- number_loop_len+1
+        }
+      # Since we are checking if each loop length has occurred atleast once,
+      # we don't update the lengths if it's already 1 
+        if(current_sim_loop_len[number_loop_len] < 1){
+          current_sim_loop_len[number_loop_len]<- 1
+        }
+    }
+    # Finally, end of each simulation, update how many times each loop len has occurred 
+    # once and add to total count
+    loop_lengths<- loop_lengths+current_sim_loop_len
+    
+  }
+  # ******
+  # Probability of each loop length occurring once = 
+  # No. times each loop length occurred once/total no times all loop lengths occurred once
+  loop_lengths/sum(loop_lengths)
+  
+}
+```
+
+
+```{r}
+p_less_than_n<-sum(dloop(2,100)[1:2])
+p_less_than_n
+dloop(2,100)
 ```
 
