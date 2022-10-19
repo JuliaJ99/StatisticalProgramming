@@ -4,43 +4,25 @@ output: html_notebook
 ---
 
 ```{r}
-Pone <- function(n,k,strategy=1,nreps=10000){
-  success <- 0
-  prisoners <- 2*n
-  person <- k
-  #strategy 3
-  if (strategy == 3){
-    for (a in 1:nreps){
-      picks <- sample(prisoners,n)
-      if (person %in% picks){
-        success = success +1
-      }
-    }
-  } else {for (a in 1:nreps){
-    boxes <- sample(prisoners)
-    picks <- rep(0,n)
-    #strategy 2
-    if (strategy == 2){
-      k <- sample(prisoners,1)
-    }
-    card <- boxes[k]
-    picks[1] <- card
-    for (i in 1:n-1){
-      if (person == card){
-        success <- success + 1
-        break
-        }
-      card <- boxes[card]
-      picks[i+1] <- card
-    }
-  }
-  }
-  success/nreps
-  }
+#Outline of the project
+# We simulated the prisoner problem to estimate probabilities in each given conditions.
+# We constructed a function named PONE to estimate the probability of a prisoner
+# finding a card with their pre-assigned number inside shuffled boxes. We wrote a function for 
+# three different strategies with which prisoners can pursue to solve the problem.
+# We then built a function named PALL which estimates the probability of all prisoners finding
+# the cards with their pre-assigned number in shuffled boxes. The three estimated probabilities
+# reflects with which strategies all prisoners successfully finding their target cards.
+# We also constructed a function named DLOOP that estimates probabilities of each loop length
+# ranging from 1 to 2*n occurring at least once in a given number of simulations.
+# A density function plot is provided to visualise the probabilities that
+# there is no loop longer than 50 using the previously written DLOOP function.
 ```
-# Pone final version
+
 
 ```{r}
+Q1
+#To estimate the probability of a single prisoner succeeding in finding their card
+#in the box, we simulate the scenario with 3 different strategies.
 Pone <- function(n,k,strategy=1,nreps=10000){
   success <- 0
   prisoners <- 2*n
@@ -74,6 +56,7 @@ Pone <- function(n,k,strategy=1,nreps=10000){
 ```
 
 ```{r}
+Q2
 Pall <- function(n,strategy=1,nreps=10000){
   
 
@@ -131,53 +114,90 @@ Pall <- function(n,strategy=1,nreps=10000){
 }
 ```
 
-```{r}
-Pall(50,3,1000)
-```
 
 ```{r}
-dloop <- function(n,nreps){
-  
-  #The vector we want in the end
-  loop_lengths<-rep(0,(2*n))
-  
-  for (sim in 1:nreps){
-    # Since the qs asks whether a loop of that length has occurred 'atleast' once for a random shuffle of boxes(and not the total no of times each loop length), for each simulation we create a vector of zeroes and add to it to indicate whether a loop of that length has occurred in the current simulation atleast once
-    current_sim_loop_len<- rep(0,(2*n))
-    
-    # Shuffle and assign card numbers to boxes
-    boxes<-sample(2*n)
-    number_loop_len<-1
-    
-    for(i in 1: (2*n)){
-      # For indexing card inside first box
+#Q5
+dloop<-function(n,nreps){
+  occurrence_of_loop<-rep(0,(2*n))
+  #This is a vector containing 0s with length 2*n, that counts overall the 
+  #number of each loop length occurred during the nrep times of simulations.
+  prisoners<-(1:(2*n))
+  for (a in 1:nreps){
+    box<-sample(prisoners)
+    #This function randomly shuffles the order of 2*n cards in the box for
+    #each nrep simulations.
+    current_simulation<-rep(0,2*n)
+    #This vector of length 2*n 0s records which loop length has occurred in
+    #the current simulation.
+    for (i in 1:(2*n)){
       index<-i
-      
-      # Number of loops it takes to get box=card for number i. Minimum no of loops is 1
-      number_loop_len<-1
-      
-      # Nesting until the box number= card
-      while(boxes[index] != i){
-        index<-boxes[index]
-        number_loop_len<- number_loop_len+1
-      }
-      # Since we are checking if each loop length has occurred atleast once,
-      # we don't update the lengths if it's already 1 
-      if(current_sim_loop_len[number_loop_len] < 1){
-        current_sim_loop_len[number_loop_len]<- 1
+      #We use index to track the number of the card of prisoner and which box to open.
+      loop<-1
+      #This loop value records how many loops each prisoner has entered.
+      while(loop<=2*n){
+        if (box[index]==i){
+          current_simulation[loop]=1
+          #If the card number matches with the card inside the box, the loop ends.
+          #This will turn the value of 0 inside the current_simulation vector to 1.
+          #Doing so we can take a record of which loop length has occurred.
+          #Break the loop if this condition is satisfied, otherwise, the prisoner
+          #enters another loop as follows.
+          break
+        }else{
+          index=box[index]
+          #This line updates the original index number to the number of the card
+          #realised upon opening the box.
+          loop=loop+1
+          #Increasing the loop number by 1 for each loop cycle.
+        }
       }
     }
-    # Finally, end of each simulation, update how many times each loop len has occurred 
-    # once and add to total count
-    loop_lengths<- loop_lengths+current_sim_loop_len
-    
+    occurrence_of_loop<-occurrence_of_loop+current_simulation
+    #Before each simulation ends for nreps simulations, we record which loop length
+    #has occurred within each simulation by adding 1s to the corresponding positions 
+    #in the occurrence_of_loop vector outside of the loop.
+    #After all nrep simulations have ended, the values inside occurrence_of_loop vector
+    #shows how many times each loop_length has happened in nreps simulations.
   }
-  # ******
-  # Probability of each loop length occurring once = 
-  # No. times each loop length occurred once/total no times all loop lengths occurred once
-  loop_lengths/nreps
-  
+  return(occurrence_of_loop/nreps)
 }
+a <- dloop(50,10000)
+```
+
+
+```{r}
+#Q6
+dloop1<-function(n,nreps){
+  prisoners<-(1:(2*n))
+  less_than_50_loops<-0
+  #This new vector keeps track of the number of nrep simulations that ended with
+  #every prisoners ended less than or equal to 50 loops
+  for (a in 1:nreps){
+    box<-sample(prisoners)
+    current_simulation<-rep(0,2*n)
+    for (i in 1:(2*n)){
+      index<-i
+      freqency<-1
+      while(freqency<=2*n){
+        if (box[index]==i){
+          current_simulation[freqency]=1
+          break
+        }else{
+          index=box[index]
+          freqency=freqency+1
+        }
+      }
+    }
+    if (sum(current_simulation[(n+1):(2*n)])==0){
+      less_than_50_loops<-less_than_50_loops+1
+      #If in the current simulation every prisoners had loop length less than or
+      #equal to 50 loop, take record of this simulation by adding 1 to the
+      #less_than_50_loops outside of the nreps loops.
+    }
+  }
+  return(less_than_50_loops/nreps)
+}
+e <- dloop1(50,10000)
 ```
 
 
