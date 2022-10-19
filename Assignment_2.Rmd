@@ -136,7 +136,6 @@ Pall(50,3,1000)
 ```
 
 ```{r}
-# dloop
 dloop <- function(n,nreps){
   
   #The vector we want in the end
@@ -158,15 +157,15 @@ dloop <- function(n,nreps){
       number_loop_len<-1
       
       # Nesting until the box number= card
-        while(boxes[index] != i){
-          index<-boxes[index]
-          number_loop_len<- number_loop_len+1
-        }
+      while(boxes[index] != i){
+        index<-boxes[index]
+        number_loop_len<- number_loop_len+1
+      }
       # Since we are checking if each loop length has occurred atleast once,
       # we don't update the lengths if it's already 1 
-        if(current_sim_loop_len[number_loop_len] < 1){
-          current_sim_loop_len[number_loop_len]<- 1
-        }
+      if(current_sim_loop_len[number_loop_len] < 1){
+        current_sim_loop_len[number_loop_len]<- 1
+      }
     }
     # Finally, end of each simulation, update how many times each loop len has occurred 
     # once and add to total count
@@ -176,15 +175,9 @@ dloop <- function(n,nreps){
   # ******
   # Probability of each loop length occurring once = 
   # No. times each loop length occurred once/total no times all loop lengths occurred once
-  loop_lengths/sum(loop_lengths)
+  loop_lengths/nreps
   
 }
 ```
 
-
-```{r}
-p_less_than_n<-sum(dloop(2,100)[1:2])
-p_less_than_n
-dloop(2,100)
-```
 
