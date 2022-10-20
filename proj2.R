@@ -13,24 +13,26 @@
 # Task 6 - probability (Julia J)
 # Task 6 - plot (Julia K)
 
-# Rough proportions: Julia K - %, Akira - %, Julia J - %
+# Rough proportions: Julia K - 1/3, Akira - 1/3, Julia J - 1/3
 
 # ------- Outline of project----------------------------------------------------
 
-# We simulated the prisoner-box problem to estimate probabilities for 3 strategies.
-# Prisoners open a sequence of boxes of length 2*n to find their number insde. Under
+#    We simulated the prisoner-box problem to estimate probabilities for 3 strategies.
+# Prisoners open a sequence of boxes of length 2*n to find their number inside. Under
 # strategy 1 they start the sequence by opening a box with their number,
 # under strategy 2 they start with a random box, in both cases they continue 
 # the search by opening boxes according to cards they found in the previous one.
 # Under strategy 3 they pick all boxes in random order.
-# We constructed a function PONE to estimate the probability of one prisoner
+#
+#    We constructed a function Pone to estimate the probability of one prisoner
 # finding a card with their pre-assigned number inside shuffled boxes.
-# We then built a function PALL which estimates the probability of all prisoners finding
+# We then built a function Pall which estimates the probability of all prisoners finding
 # the cards with their pre-assigned number in shuffled boxes.
-# We also constructed a function DLOOP that estimates probabilities of each loop length
+#
+#    We also constructed a function dloop that estimates probabilities of each loop length
 # ranging from 1 to 2*n occurring at least once in a given number of simulations.
-# A plot is provided to visualise the probabilities. We find the probability that 
-# there is no loop longer than 50 using the previously written DLOOP function for n=50.
+# A plot is provided to visualize the probabilities. We find the probability that 
+# there is no loop longer than 50 using the previously written dloop function for n=50.
 
 # ------- Code -----------------------------------------------------------------
 
@@ -115,7 +117,7 @@ Pall <- function(n,strategy=1,nreps=10000){
           }
           card <- boxes[card]          # Find the sequence of cards
         }
-        if(p_success == prisoners){    # Count simulations with all prisoners successfull
+        if(p_success == prisoners){    # Count simulations with all prisoners successful
           success <- success + 1
         }
       }
@@ -142,6 +144,20 @@ Pone(5, k=1, strategy=3)
 Pone(50, k=1, strategy=3)
 Pall(5, strategy=3)
 Pall(50, strategy=3)
+
+# Observations:
+ #   What surprises us of the estimated probabilities is that the probability
+ # of all prisoners (Pall) successfully finding their cards asymptotically 
+ # converges to 0.31 as n goes to infinity for strategy 1, while for strategies 2 
+ # and 3 the probabilities converges to 0 as n grows larger.
+ #   
+ #   The results we observed for Pall is a stark contrast compared to the 
+ # probabilities we observed for Pone. For strategies 1 and 3 in Pone, the 
+ # estimated probabilities converge to 0.5, and 0.375 for strategy 2. Hence, we
+ # expected Pall to follow the same pattern but it does not.
+ #   
+ #   While all three strategies were somewhat successful for Pone, only strategy
+ # 1 proved to be useful for Pall.
 
 
 dloop <- function(n,nreps){
@@ -176,7 +192,9 @@ dloop <- function(n,nreps){
 
 estimates <- dloop(50,10000)           # We find the probabilities for n=50
 p_no_over_fifty <- 1-sum(estimates[51:100]) # We find the probability of no loop longer than 50
-cat(p_no_over_fifty)
+p_no_over_fifty                        # We expect this estimated probability to be close to
+                                       # the estimate we obtained for Pall where n is 50 and 
+                                       # strategy is 1.
 plot(1:100, estimates, main = "Probabilities of each loop length appearing at least once for n=50 and nreps=10000",
      pch = 20,xlab="Length", ylab="Probability")
-                                      # We plot the probabilities for each loop length
+                                       # We plot the probabilities for each loop length
