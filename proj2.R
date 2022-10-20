@@ -18,6 +18,11 @@
 # ------- Outline of project----------------------------------------------------
 
 # We simulated the prisoner-box problem to estimate probabilities for 3 strategies.
+# Prisoners open a sequence of boxes of length 2*n to find their number insde. Under
+# strategy 1 they start the sequence by opening a box with their number,
+# under strategy 2 they start with a random box, in both cases they continue 
+# the search by opening boxes according to cards they found in the previous one.
+# Under strategy 3 they pick all boxes in random order.
 # We constructed a function PONE to estimate the probability of one prisoner
 # finding a card with their pre-assigned number inside shuffled boxes.
 # We then built a function PALL which estimates the probability of all prisoners finding
@@ -145,20 +150,21 @@ dloop <- function(n,nreps){
   # occuring at least once in nreps simulations. It returns a vector of probabilities.
   
   prisoners <- 2*n
-  all_lengths_prob <- rep(0,prisoners) # We initialise the counts of each loop length appearing
+  all_lengths_prob <- rep(0,prisoners) # We initialize the counts of each loop length appearing
   for (a in 1:nreps){
     boxes <- sample(prisoners)         # We simulate numbers inside boxes
     all_lengths <- rep(0,prisoners)    # We record which loop length has occurred
     for (p in 1:prisoners){
       person <- p 
       length <- 1                      # We record the loop length
+      card <- boxes[p]
       for (k in 1:prisoners){
-        if (second == person){
+        if (card == person){
           all_lengths[length] <- 1
           length <- 0
           break
         }
-        second <- boxes[second]       # We find the sequence of cards
+        card <- boxes[card]           # We find the sequence of cards
         length <- length + 1          # We increase the loop length
       }
     } 
@@ -168,8 +174,9 @@ dloop <- function(n,nreps){
 }
 
 
-estiamtes <- dloop(50)                # We find the probabilities for n=50
+estimates <- dloop(50,10000)           # We find the probabilities for n=50
 p_no_over_fifty <- 1-sum(estimates[51:100]) # We find the probability of no loop longer than 50
+cat(p_no_over_fifty)
 plot(1:100, estimates, main = "Probabilities of each loop length appearing at least once for n=50 and nreps=10000",
      pch = 20,xlab="Length", ylab="Probability")
                                       # We plot the probabilities for each loop length
