@@ -20,7 +20,7 @@ output: html_notebook
 
 
 ```{r}
-Q1
+#Q1
 #To estimate the probability of a single prisoner succeeding in finding their card
 #in the box, we simulate the scenario with 3 different strategies.
 Pone <- function(n,k,strategy=1,nreps=10000){
@@ -32,87 +32,107 @@ Pone <- function(n,k,strategy=1,nreps=10000){
     for (a in 1:nreps){
       picks <- sample(prisoners,n)
       if (person %in% picks){
-        success = success +1
-      }
-    }
-  } else {for (a in 1:nreps){
-    boxes <- sample(prisoners)
-    #strategy 2
-    if (strategy == 2){
-      k <- sample(prisoners,1)
-    }
-    card <- boxes[k]
-    for (i in 1:n-1){
-      if (person == card){
-        success <- success + 1
-        break
+        success <- success +1
         }
-      card <- boxes[card]
-    }
-  }
-  }
+      }
+    } else {
+      for (a in 1:nreps){
+        boxes <- sample(prisoners)
+        #strategy 2
+        if (strategy == 2){
+          k <- sample(prisoners,1)
+          }
+        card <- boxes[k]
+        for (i in 1:n-1){
+          if (k==card){
+            success <- success + 1
+            break
+            }
+          card <- boxes[card]
+          }
+        }
+      }
   success/nreps
-  }
+}
+Pone(50,1)
 ```
 
 ```{r}
-Q2
+#Q2
 Pall <- function(n,strategy=1,nreps=10000){
-  
-
   success <- 0
   prisoners <- 2*n
   #strategy 3
-    if (strategy == 3){
-      for (a in 1:nreps){
-        p_success<-0
-        
-        for (j in 1:prisoners){
-          picks <- sample(prisoners,n)
-      
-          if (!(j %in% picks)){
-            break
-            }
-          else{
+  if (strategy == 3){
+    for (a in 1:nreps){
+      p_success<-0
+      for (j in 1:prisoners){
+        picks <- sample(prisoners,n)
+        if (!(j %in% picks)){
+          break
+          }else{
             p_success<-p_success+1
             }
         }
-        
         if (p_success == prisoners){
           success<- success+1
-        }
-      }
-    }
-    else {
-      for (a in 1:nreps){
-      
-        boxes <- sample(prisoners)
-        p_success<-0
-        for (j in 1:prisoners){
-          first<-j # Assign prisoner no to first box, strategy 1 default
-          
+          }
+       }
+     }else {
+       for (a in 1:nreps){
+         boxes <- sample(prisoners)
+         p_success<-0
+         for (j in 1:prisoners){
+           first<-j # Assign prisoner no to first box, strategy 1 default
           # strategy 2
-          if (strategy == 2){
-            first <- sample(prisoners,1) #IF strategy 2 chosen, assign random no
+           if (strategy == 2){
+             first <- sample(prisoners,1) #IF strategy 2 chosen, assign random no
+             }
+           card <- boxes[first]
+           for (i in 1:n-1){
+             if (j == card){
+               p_success <- p_success + 1
+               break
+               }
+             card <- boxes[card]
+             }
+         if(p_success==prisoners){
+           success<-success+1
+           }
           }
-        card <- boxes[first]
-          for (i in 1:n-1){
-            if (j == card){
-              p_success <- p_success + 1
-              break
-            }
-            card <- boxes[card]
-          }
-        if(p_success==prisoners){
-          success<-success+1
+         }
         }
-        }
-      }
-    
-    }
   success/nreps
 }
+Pall(50)
 ```
+
+```{r}
+#Q3
+#For Strategy 1 the probabilities of Pone and Pall given n=5 and n=50 are as follows:
+Pone(5,k=1)
+Pone(50,k=1)
+Pall(5)
+Pall(50)
+#For Strategy 2:
+Pone(5,k=1,strategy=2)
+Pone(50,k=1,strategy=2)
+Pall(5,strategy=2)
+Pall(50,strategy=2)
+#For Strategy 3
+Pone(5,k=1,strategy=3)
+Pone(50,k=1,strategy=3)
+Pall(5,strategy=3)
+Pall(50,strategy=3)
+```
+
+
+```{r}
+#Q4
+#What surprises us of the estimated probabilities is that the probability of all prisoners (PALL) successfully finding their cards asymptotically converges to 0.3 as n goes to infinity for strategy 1, while for strategies 2 and 3 the probabilities converges to 0 as n grows larger. 
+#It is a stark contrast compared to the probabilities we observed for each given strategy in Pone, where we considered the probability of a single prisoner finding their designated card. For Pone, regardless of the strategy chosen, the probability of succeeding in the scenario is roughly 50.
+```
+
 
 
 ```{r}
@@ -161,7 +181,7 @@ dloop<-function(n,nreps){
   }
   return(occurrence_of_loop/nreps)
 }
-a <- dloop(50,10000)
+dloop(50,10000)
 ```
 
 
@@ -197,7 +217,7 @@ dloop1<-function(n,nreps){
   }
   return(less_than_50_loops/nreps)
 }
-e <- dloop1(50,10000)
+dloop1(50,10000)
 ```
 
 
