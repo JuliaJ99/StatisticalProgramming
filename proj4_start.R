@@ -31,7 +31,7 @@ newt <- function(theta,func,grad,hess=NULL,...,tol=1e-8,fscale=1,maxit=100,max.h
     new_D <- old_D + 1
     delta <- -chlol2inv(hess_th)%*%grad_th # inversion could be done nicer
     step <- 0 # number of times we halve delta
-    while (new_D < old_D){
+    while (new_D > old_D){
       if (step == max.half){
         stop('Step fails to reduce!')
       }
