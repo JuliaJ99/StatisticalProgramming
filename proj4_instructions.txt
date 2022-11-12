@@ -1,0 +1,11 @@
+- objective or derivatives are not finite at the initial theta - error
+- count the iteriaions (if max reach - error)
+- if hess is null (create hessian); if not check if it's pd with chol()
+- evaluate the step
+- evalueate D(theta +step)
+- check D(theta +step) < D(theta); if not: havlve the step with a while loop; if max.half reached - error
+- check convergance: 
+		*check grad = 0 (with tol) and pd for hessian (error if not)
+		*all elements of the gradient vector have absolute value less
+		  than tol times the absolute value of the objective function plus fscale
+- evaluate grad, hessian at new_theta
