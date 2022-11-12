@@ -28,16 +28,16 @@ newt <- function(theta,func,grad,hess=NULL,...,tol=1e-8,fscale=1,maxit=100,max.h
     hess_th <- hess(new_theta)
     grad_th <- grad(new_theta)
     old_D <- D(new_theta)
-    new_D <- old_D + 1
     delta <- -chlol2inv(hess_th)%*%grad_th # inversion could be done nicer
+    new_D <- old_D+t(delta)%*%grad_th+1/2*t(delta)%*%hess_th%*%delta #or new_D = D(theta+delta)
     step <- 0 # number of times we halve delta
     while (new_D > old_D){
-      if (step == max.half){
+      step <- step + 1
+      if (step > max.half){
         stop('Step fails to reduce!')
       }
-      new_D <- old_D+t(delta)%*%grad_th+1/2*t(delta)%*%hess_th%*%delta #or new_D = D(theta+delta)
       delta <- delta/2
-      step <- step + 1
+      new_D <- old_D+t(delta)%*%grad_th+1/2*t(delta)%*%hess_th%*%delta #or new_D = D(theta+delta)
     }
     new_theta <- new_theta + delta
     convergence <- tol*(abs(new_D)+fscale)#brackets or no brackets???
