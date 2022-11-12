@@ -1,12 +1,12 @@
 newt <- function(theta,func,grad,hess=NULL,...,tol=1e-8,fscale=1,maxit=100,max.half=20,eps=1e-6){
   
   # checking if objective or derivatives are finite at the initial theta 
-  if (abs(D(theta))==Inf|abs(grad(theta))==Inf|abs(hess(theta))==Inf) {
+  if (abs(D(theta))==Inf|abs(grad(theta))==Inf|abs(hess(theta))==Inf) { # should hess be included?
     stop('Objective function or derivatives not finite at the initial theta!') #stop or warning?
   }
   
   # if hess not supplied use the finite difference approximation
-  if (hess=NULL){
+  if (hess==NULL){
     hess <- function(grad,theta,eps,...){
       grad_th <- grad(theta)
       Hfd <- matrix(0,length(theta),length(theta))
