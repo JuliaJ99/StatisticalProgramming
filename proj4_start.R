@@ -45,7 +45,7 @@ newt <- function(theta,func,grad,hess=NULL,...,tol=1e-8,fscale=1,maxit=100,max.h
       if (class(pd_check(hess(new_theta)))=='try-error'){
         stop('Hessian not positive definite at convergence!') # stop or warning?
       }
-      #converged
+      #converged - output the optimised theta
     }
     iter <- iter + 1
   }
