@@ -1,12 +1,15 @@
 newt <- function(theta,func,grad,hess=NULL,...,tol=1e-8,fscale=1,maxit=100,max.half=20,eps=1e-6){
   
   # checking if objective or derivatives are finite at the initial theta 
-  if (abs(D(theta))==Inf|abs(grad(theta))==Inf|abs(hess(theta))==Inf) { # should hess be included?
+  if ((abs(func(theta))==Inf) || 
+      any(abs(grad(theta))==Inf) || 
+      any(c(abs(hess(theta)))==Inf)) { # should hess be included?
     stop('Objective function or derivatives not finite at the initial theta!') #stop or warning?
   }
+  #*** Julia J: Add an additional if statement, hess should be included only if it is provided
   
   # if hess not supplied use the finite difference approximation
-  if (hess==NULL){
+  if (missing(hess)){ #*** Julia J: replaced ==Null with missing
     hess <- function(grad,theta,eps,...){
       grad_th <- grad(theta)
       Hfd <- matrix(0,length(theta),length(theta))
@@ -16,6 +19,7 @@ newt <- function(theta,func,grad,hess=NULL,...,tol=1e-8,fscale=1,maxit=100,max.h
         grad_new <- grad(new_theta)
         Hfd[i,] <- (grad_new - grad_th)/eps
       }
+      
       (t(Hfd)+Hfd)/2
     }
   }
@@ -27,9 +31,13 @@ newt <- function(theta,func,grad,hess=NULL,...,tol=1e-8,fscale=1,maxit=100,max.h
   while (iter<=maxit){
     hess_th <- hess(new_theta)
     grad_th <- grad(new_theta)
-    old_D <- D(new_theta)
-    delta <- -chlol2inv(hess_th)%*%grad_th # inversion could be done nicer
-    new_D <- old_D+t(delta)%*%grad_th+1/2*t(delta)%*%hess_th%*%delta #or new_D = D(theta+delta)
+    old_D <- func(new_theta)
+    delta <- -1*chol2inv(hess_th)%*%grad_th # inversion could be done nicer
+    # new_D <- old_D+t(delta)%*%grad_th+1/2*t(delta)%*%hess_th%*%delta #or new_D = D(theta+delta)
+    new_D<-func(new_theta+delta)
+    
+    #****Julia J: Isn't new_D= D(theta+delta) ? Is the formula necessary?
+    
     step <- 0 # number of times we halve delta
     while (new_D > old_D){
       step <- step + 1
@@ -37,34 +45,35 @@ newt <- function(theta,func,grad,hess=NULL,...,tol=1e-8,fscale=1,maxit=100,max.h
         stop('Step fails to reduce!')
       }
       delta <- delta/2
-      new_D <- old_D+t(delta)%*%grad_th+1/2*t(delta)%*%hess_th%*%delta #or new_D = D(theta+delta)
+      # new_D <- old_D+t(delta)%*%grad_th+1/2*t(delta)%*%hess_th%*%delta #or new_D = D(theta+delta)
+      new_D<-func(new_theta+delta)
+      
     }
     new_theta <- new_theta + delta
     convergence <- tol*(abs(new_D)+fscale)#brackets or no brackets???
-    if (abs(grad) < convergence){
+    if (all(abs(grad(new_theta)) < rep(convergence,times=length(grad(new_theta))))){
       if (class(pd_check(hess(new_theta)))=='try-error'){
         stop('Hessian not positive definite at convergence!') # stop or warning?
       }
-      #converged - output the optimised theta
+      #converged - output the optimized theta
     }
     iter <- iter + 1
   }
   
   # max number of iterations
   if (iter == maxit){
-    stop('Maximum number of iterations reached withot convergence!')
+    stop('Maximum number of iterations reached without convergence!')
   }
   
   #check convergance
   
-  
-  
-  
+  return(list('f'=func(new_theta),'theta'=new_theta))
 } #end of the newt function
 
 
 # checking if hessian is positive definite
 pd_check<- function(hess_th){
+ 
   if (class(try(chol(hess_th),silent=TRUE))=='try-error'){
     stop('Hessian not positive definite!')
   }
@@ -75,12 +84,14 @@ pd_check<- function(hess_th){
 # to the new hessian
 pd_fix<- function(hess_th){
   while(class(try(chol(hess_th),silent=TRUE))[1]=='try-error'){
-    hess_th <- hess_th + diag(dim(hess_th)[1]) # diagonal should be multipled 
-                              #by some value, i chose to do a while loop for the
-                              #multiple but idk if it works for small values for example
+    hess_th <- hess_th + diag(dim(hess_th)[1]*0.01 ) # diagonal should be multipled 
+                              # by some value, i chose to do a while loop for the
+                              # multiple but idk if it works for small values for example
   }
   hess_th
 }
+
+
 
 ## Testing---------------------------------------------------------------------
 
@@ -100,9 +111,15 @@ hb <- function(th,k=2) {
 
 th <-c(1,1)
 
-hb(th)
-A <-hess(gb,th,eps=1e-6,th=th,k=2)
+# hb(th)
+# A <-hess(gb,th,eps=1e-6,th=th,k=2)
 
+newt(theta=c(1,3),rb,gb,hb)
 
-
-
+# fOR TOMO:
+library(debug)
+mtrace(newt)
+newt(theta=c(1,3),rb,gb,hb)
+mtrace(newt)
+Q
+all(c(1,1)<c(2,2))
