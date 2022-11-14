@@ -82,7 +82,9 @@ newt <- function(theta,func,grad,hess=NULL,...,tol=1e-8,fscale=1,maxit=100,max.h
       
       #converged - output the optimized theta
       cat('\n Convergence reached!')
-      return(list('f'=func(new_theta),'theta'=new_theta))
+      return(list('f' = func(new_theta), 'theta' = new_theta, 
+                  'iter' = iter, 'g' = grad(new_theta), 
+                  'Hi' = chol2inv(chol(hess(new_theta)))))
     }
     
     iter <- iter + 1
