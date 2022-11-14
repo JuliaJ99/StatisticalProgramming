@@ -1,3 +1,13 @@
+
+# ** Julia J, 14/11 morning updates:
+# Made a few changes to pd check and pd fix
+# Made sure the 'max iter without convergence' message appears
+# Still not sure of the convergence formula. By tweaking it, either we reach convergence too early around 1.9-1.3, 
+# or we don't converge at all
+
+# Please don't remove any of the print statements yet. I know it's annoying but it's useful to observe the process
+
+
 newt <- function(theta,func,grad,hess=NULL,...,tol=1e-8,fscale=1,maxit=100,max.half=20,eps=1e-6){
   # if hess not supplied use the finite difference approximation
   
@@ -6,7 +16,6 @@ newt <- function(theta,func,grad,hess=NULL,...,tol=1e-8,fscale=1,maxit=100,max.h
       grad_th <- grad(theta)
       Hfd <- matrix(0,length(theta),length(theta))
       
-      #** INDICATOR, REMOVE LATER
       cat('entered hessian define func')
       for (i in 1:length(theta)){
         new_theta <- theta 
@@ -38,8 +47,9 @@ newt <- function(theta,func,grad,hess=NULL,...,tol=1e-8,fscale=1,maxit=100,max.h
     old_D <- func(new_theta)
     cat('\n func value at old_theta',old_D)
     delta <- -1*chol2inv(hess_th)%*%grad_th # inversion could be done nicer
-    # new_D <- old_D+t(delta)%*%grad_th+1/2*t(delta)%*%hess_th%*%delta #or new_D = D(theta+delta)
-    new_D<-func(new_theta+delta)
+    new_D <- old_D+ (t(delta)%*%grad_th)+ (0.5*t(delta)%*%hess_th%*%delta) #or new_D = D(theta+delta)
+    
+    # new_D<-func(new_theta+delta)
     
     step <- 0 # number of times we halve delta
     while (new_D > old_D){
@@ -48,8 +58,8 @@ newt <- function(theta,func,grad,hess=NULL,...,tol=1e-8,fscale=1,maxit=100,max.h
         stop('Step fails to reduce!')
       }
       delta <- delta/2
-      # new_D <- old_D+t(delta)%*%grad_th+1/2*t(delta)%*%hess_th%*%delta #or new_D = D(theta+delta)
-      new_D<-func(new_theta+delta)
+      new_D <- old_D+ (t(delta)%*%grad_th )+ (0.5*t(delta)%*%hess_th%*%delta) #or new_D = D(theta+delta)
+      # new_D<-func(new_theta+delta)
       cat('\nEntered step halving, new_D with new halved delta is ',new_D)
     }
     
@@ -57,13 +67,14 @@ newt <- function(theta,func,grad,hess=NULL,...,tol=1e-8,fscale=1,maxit=100,max.h
     
     new_theta <- new_theta + delta
     cat('\n theta + delta',new_theta)
-    convergence <- tol*(abs(new_D))+fscale#brackets or no brackets???
+    convergence <- tol*(abs(new_D)+fscale)#brackets or no brackets???
     cat('\n Convergence value',convergence)
     cat('\n Grad value',grad(new_theta))
     if (all(abs(grad(new_theta)) < rep(convergence,times=length(grad(new_theta))))){
-      cat("\n",try(chol(hess_th),silent=TRUE))
       
-      if (class(pd_check(hess(new_theta)))=='try-error'){
+      # ** Julia J: The documentation for 'try' suggests using inherits for this kind of situation
+      
+      if (inherits(try(chol(hess(new_theta)),silent=TRUE),"try-error")){
         stop('Hessian not positive definite at convergence!') # stop or warning?
       }
       
@@ -98,9 +109,11 @@ newt <- function(theta,func,grad,hess=NULL,...,tol=1e-8,fscale=1,maxit=100,max.h
 # this fixes the hessian, but idk how we should adjust the values of theta/grad/D
 # to the new hessian
 pd_fix<- function(hess_th){
-
-  while(class(try(chol(hess_th),silent=TRUE))[1]=='try-error'){
-    hess_th <- hess_th + diag(dim(hess_th)[1] ) # diagonal should be multipled 
+  
+  # ** Julia J: The documentation for 'try' suggests using inherits for this kind of situation
+  
+  while(inherits(try(chol(hess_th),silent=TRUE),"try-error")){
+    hess_th <- hess_th + diag(dim(hess_th)[1]) # diagonal should be multipled 
                               # by some value, i chose to do a while loop for the
                               # multiple but idk if it works for small values for example
   }
@@ -139,3 +152,8 @@ newt(theta=c(1,3),rb,gb,hb)
 # mtrace(newt)
 # Q
 # all(c(1,1)<c(2,2))
+
+A<- matrix(1:4,nrow=2,ncol=2)
+length(class(try(chol(A),silent=TRUE))=='try-error')
+inherits(try(chol(A),silent=TRUE),"try-error")
+
