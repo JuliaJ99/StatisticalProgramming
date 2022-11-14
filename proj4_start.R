@@ -45,8 +45,14 @@ newt <- function(theta,func,grad,hess=NULL,...,tol=1e-8,fscale=1,maxit=100,max.h
     hess_th<-pd_fix(hess_th)
     grad_th <- grad(new_theta)
     old_D <- func(new_theta)
+    chol_hess_th <- chol(hess_th)
+    identity <- diag(length(theta))
+    # the target of the cholesky decompositionis the identity matrix
+    # as A*A^-1 = I. 
     cat('\n func value at old_theta',old_D)
-    delta <- -1*chol2inv(hess_th)%*%grad_th # inversion could be done nicer
+    delta <- -1*backsolve(chol_hess_th, forwardsolve(t(chol_hess_th), identity))%*%grad_th
+    # forwardsolve finds the the component to be backsolved with chol_hess_th. 
+    
     new_D <- old_D+ (t(delta)%*%grad_th)+ (0.5*t(delta)%*%hess_th%*%delta) #or new_D = D(theta+delta)
     
     # new_D<-func(new_theta+delta)
