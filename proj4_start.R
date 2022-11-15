@@ -80,7 +80,7 @@ newt <- function(theta, func, grad, hess = NULL, ..., tol = 1e-8, fscale = 1,
 
     # Examine if the gradient of the objective function at new_theta is 
     # approximately 0, after taking into account of the tolerance set by the 
-    # function user.
+    # function user. if so, the convergence is reached
     if ((max(abs(grad(new_theta))) < (tol * (abs(D_delta) + fscale)))){
       
       # Break the function if the hessian is not positive definite at 
