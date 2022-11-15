@@ -4,8 +4,9 @@ newt <- function(theta, func, grad, hess = NULL, ..., tol = 1e-8, fscale = 1,
   
   # Finite difference approximation for the Hessian matrix if the 'hess'
   # argument is missing
-  if (missing(hess)){
-    hess <- function(grad, theta, eps, ...){
+  # if (missing(hess)){ #**JJ**
+    hess_defined <- function(theta){ # ** JJ **: does the hessian need grad and eps passed into it?
+      
       Hfd <- matrix(0, length(theta), length(theta))
       # generate a matrix of 0s to later replace the values with the 
       # second derivatives
@@ -20,8 +21,13 @@ newt <- function(theta, func, grad, hess = NULL, ..., tol = 1e-8, fscale = 1,
       (t(Hfd) + Hfd) / 2
       #!! how should i explain this step
     }
-  }
+  # }
   
+    # **JJ**
+    if(missing(hess)){
+      hess<-hess_defined
+    }
+    
   # Break the function if any one of the objectives or derivatives are not 
   # finite at the initial theta
   if ((abs(func(theta)) == Inf) || 
@@ -132,5 +138,5 @@ hb <- function(th,k=2) {
 
 th <-c(1,1)
 
-newt(theta=c(1,3),rb,gb,hb)
+newt(theta=c(1,3),rb,gb)
 
