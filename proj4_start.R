@@ -1,32 +1,28 @@
 newt <- function(theta, func, grad, hess = NULL, ..., tol = 1e-8, fscale = 1, 
                  maxit = 100, max.half = 20, eps = 1e-6){
-#!! Explain what newt does
+# What newt does  
   
   # Finite difference approximation for the Hessian matrix if the 'hess'
   # argument is missing
-  # if (missing(hess)){ #**JJ**
-    hess_defined <- function(theta){ # ** JJ **: does the hessian need grad and eps passed into it?
-      
-      Hfd <- matrix(0, length(theta), length(theta))
-      # generate a matrix of 0s to later replace the values with the 
-      # second derivatives
-      for (i in 1:length(theta)){
-        new_theta <- theta
-        new_theta[i] <- new_theta[i] + eps
-        Hfd[i,] <- (grad(new_theta, ...) - grad(theta, ...)) / eps
-        # this step essentially computes the second derivatives. 
-        # second derivatives can be obtained by applying the first principle to
-        # 'grad', the first derivatives.
+  define_hessian <- function(theta){
+    Hfd <- matrix(0, length(theta), length(theta))
+    # generate a matrix of 0s to later replace the values with the 
+    # second derivatives
+    for (i in 1:length(theta)){
+      new_theta <- theta
+      new_theta[i] <- new_theta[i] + eps
+      Hfd[i,] <- (grad(new_theta, ...) - grad(theta, ...)) / eps
+      # this step essentially computes the second derivatives. 
+      # second derivatives can be obtained by applying the first principle to
+      # 'grad', the first derivatives.
       }
-      (t(Hfd) + Hfd) / 2
-      #!! how should i explain this step
-    }
-  # }
+    (t(Hfd) + Hfd) / 2
+    # make the hessian matrix symmetric
+  }
   
-    # **JJ**
-    if(missing(hess)){
-      hess<-hess_defined
-    }
+  if(missing(hess)){
+    hess <- define_hessian
+  }
     
   # Break the function if any one of the objectives or derivatives are not 
   # finite at the initial theta
@@ -35,34 +31,29 @@ newt <- function(theta, func, grad, hess = NULL, ..., tol = 1e-8, fscale = 1,
       any(c(abs(hess(theta))) == Inf)) {
     stop('Objective function or derivatives not finite at the initial theta')
   }
-  
-  #!! How should i explain this step
-  pd_fix<- function(hess_th){
-    while(inherits(try(chol(hess_th), silent = TRUE), "try-error")){
-      hess_th <- hess_th + diag(dim(hess_th)[1])
-    }
-    hess_th
-  }
-  
+
   new_theta <- theta
   iter <- 0 # the number of iteration done in the while loop
   
   # Loop to search for the theta that minimises the objective function
   while (iter <= maxit){
-    hess_th <- hess(new_theta)
+    hessian <- hess(new_theta)
     # second derivatives
-    hess_th <- pd_fix(hess_th)
-    grad_th <- grad(new_theta)
+    while(inherits(try(chol(hessian), silent = TRUE), "try-error")){
+      hessian <- hessian + diag(dim(hessian)[1])
+    }
+    # perturb Hessian until cholesky decomposition is possible
+    gradient <- grad(new_theta)
     # first derivatives
     D <- func(new_theta)
     # objective function values
-    chol_hess_th <- chol(hess_th)
-    # Cholesky decomposition is a preparatory step towards using chol2inv in
+    chol_hessian <- chol(hessian)
+    # Cholesky decomposition is a preparatory step towards using 'chol2inv' in
     # the next line. it computes the inverse much more efficiently compared to
     # 'solve' function
-    delta <- -1 * (Matrix::chol2inv(chol_hess_th)) %*% grad_th
-    # find the inverse of 'hess_th', the Hessian given the theta, and multiply
-    # it with -1 and 'grad_th', the first derivative, to compute 'delta' that 
+    delta <- -1 * (Matrix::chol2inv(chol_hessian)) %*% gradient
+    # find the inverse of 'hessian', the Hessian given the theta, and multiply
+    # it with -1 and 'gradient', the first derivative, to compute 'delta' that 
     # minimises the D_delta below, based on Taylor's theorem
     D_delta <- func(new_theta + delta)
     # objective function values updated with delta
@@ -86,15 +77,11 @@ newt <- function(theta, func, grad, hess = NULL, ..., tol = 1e-8, fscale = 1,
     new_theta <- new_theta + delta
     # optimal theta obtained by the loop above that minimises the objective 
     # function value
-    convergence <- tol * (abs(D_delta) + fscale)
-    #!! need explaination?
-    
-    
+
     # Examine if the gradient of the objective function at new_theta is 
     # approximately 0, after taking into account of the tolerance set by the 
     # function user.
-    if (all(abs(grad(new_theta)) < rep(convergence,
-                                       times = length(grad(new_theta))))){
+    if ((max(abs(grad(new_theta))) < (tol * (abs(D_delta) + fscale)))){
       
       # Break the function if the hessian is not positive definite at 
       # convergence
@@ -109,7 +96,6 @@ newt <- function(theta, func, grad, hess = NULL, ..., tol = 1e-8, fscale = 1,
                   'Hi' = chol2inv(chol(hess(new_theta)))))
       
     }
-    
     iter <- iter + 1
   }
   
@@ -120,6 +106,7 @@ newt <- function(theta, func, grad, hess = NULL, ..., tol = 1e-8, fscale = 1,
   }
   
 }
+
 ## Testing---------------------------------------------------------------------
 
 rb <- function(th,k=2) {
@@ -135,8 +122,6 @@ hb <- function(th,k=2) {
   h[1,2] <- h[2,1] <- -4*k*th[1]
   h
 }
-
-th <-c(1,1)
 
 newt(theta=c(1,3),rb,gb)
 
