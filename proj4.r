@@ -135,7 +135,8 @@ newt <- function(theta, func, grad, hess = NULL, ..., tol = 1e-8, fscale = 1,
     hessian <- hess(new_theta)
     # second derivatives
     while(inherits(try(chol(hessian), silent = TRUE), "try-error")){
-      hessian <- hessian + diag(dim(hessian)[1])
+      a<-dim(hessian)[1]
+      hessian <- hessian + diag(1,a,a)
       # perturb Hessian until cholesky decomposition is possible by adding a 
       # multiple of the identity matrix
     }
