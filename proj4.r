@@ -155,12 +155,15 @@ newt <- function(theta, func, grad, hess = NULL, ..., tol = 1e-8, fscale = 1,
     
     step <- 0 # the number of times delta is halved
     while (D_delta > D){
+      # while the updated objective function value 'D_delta' is greater
+      # than the original function value 'D', keeps halving the 'delta'
+      # parameter
       step <- step + 1
       
       # Break the function if the number of steps halved goes above the 
       # number set by 'max.half'
       if (step > max.half){
-        stop('Step fails to reduce')
+        stop('Fails to reduce the function value by halving delta')
       }
       
       delta <- delta / 2
