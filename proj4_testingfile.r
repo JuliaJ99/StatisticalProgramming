@@ -1,6 +1,5 @@
-
-
-source("proj4.r") 
+setwd("C:/Users/julia/Desktop/Julia_Git_repo/StatisticalProgramming")
+source('proj4.r') 
 
 # Simon's example:
 rb <- function(th,k=2) {
@@ -42,3 +41,21 @@ nlm_result$estimate
 our_result<-newt(theta=c(2,3),func=poly1,grad=poly1_grad)
 our_result$theta
 
+trig<-function(thetas=c(1,1)){
+  x<-thetas[1]
+  y<-thetas[2]
+  sin(x)*cos(y) + sin(x)
+}
+
+trig_grad<-function(thetas=c(1,1)){
+  x<-thetas[1]
+  y<-thetas[2]
+  wrt_x<-cos(x)*cos(y) + cos(x)
+  wrt_y<-sin(x)*-1*sin(y)
+  c(wrt_x,wrt_y)
+}
+
+optim_result<-optim(c(1,1),fn=trig,gr=trig_grad,control=list('fnscale' = -1))
+optim_result$par
+our_result<-newt(theta=c(1,1),func=trig,grad=trig_grad,fscale=-1,maxit = 200)
+our_result$theta
