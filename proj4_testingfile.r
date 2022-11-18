@@ -16,26 +16,30 @@ hb <- function(th,k=2) {
   h
 }
 
-newt(theta=c(1,3),rb,gb,hb)
-newt(theta=c(1,3),rb,gb)
+
+
+newt(theta=c(1,2),rb,gb,hb)
+newt(theta=c(1,2),rb,gb)
 
 # Functions
 # optim/nlm maximizes when control$fnscale is negative. Will try testing that.
 
-poly1<-function(xy=c(1,1),const=150){
+poly1<-function(xy=c(1,1),...){
+  const=c(...)
   x<-xy[1];y<-xy[2]
-  2*x^3 + (6*x*y^2)-(3*y^3)-const*x
+  2*x^3 + (6*x*y^2)-(3*y^3)+const*x
 }
 
-poly1_grad<-function(xy=c(1,1),const=150){
+poly1_grad<-function(xy=c(1,1),...){
+  const=c(...)
   x<-xy[1];y<-xy[2]
-  wrt_x<-6*x^2 + 6*y^2 -const
+  wrt_x<-6*x^2 + 6*y^2 +const
   wrt_y<-12*x*y-9*y^2
   c(wrt_x,wrt_y)
 }
 # baseline
 optim_start<-Sys.time()
-optim_result<-optim(c(2,3),fn=poly1,gr=poly1_grad)
+optim_result<-optim(c(20,8),fn=poly1,gr=poly1_grad,const=-150)
 optim_end<-Sys.time()
 optim_result$par
 cat("\nOptim time ",optim_end-optim_start)
@@ -44,9 +48,9 @@ cat("\nOptim time ",optim_end-optim_start)
 # nlm_result$estimate
 
 ours_start<-Sys.time()
-our_result<-newt(theta=c(2,3),func=poly1,grad=poly1_grad)
+our_result<-newt(theta=c(20,8),func=poly1,grad=poly1_grad,hess=NULL,const=-150)
 ours_end<-Sys.time()
-our_result$theta
+our_result$thetas
 cat('\nOur newt time ',ours_end-ours_start)
 
 newt()
