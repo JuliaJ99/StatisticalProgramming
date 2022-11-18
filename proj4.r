@@ -94,7 +94,11 @@ newt <- function(theta, func, grad, hess = NULL, ..., tol = 1e-8, fscale = 1,
 #   g: the gradient at the minimum,
 #   Hi: the inverse of the Hessian matrix at the minimum.
   
-
+  
+  # unpack '...' arguments
+  args <- list(...)
+  list2env(args,envir=.GlobalEnv)
+  
   # Finite difference approximation for the Hessian matrix if the 'hess'
   # argument is missing
   define_hessian <- function(theta,...){

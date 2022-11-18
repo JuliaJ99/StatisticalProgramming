@@ -1,3 +1,4 @@
+#setwd("C:\Users\kaklu\StatisticalProgramming\proj4.r")
 setwd("C:/Users/julia/Desktop/Julia_Git_repo/StatisticalProgramming")
 source('proj4.r') 
 
