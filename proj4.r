@@ -96,20 +96,23 @@ newt <- function(theta, func, grad, hess = NULL, ..., tol = 1e-8, fscale = 1,
   
   
   # unpack '...' arguments
-  args <- list(...)
-  list2env(args,envir=.GlobalEnv)
+  # args <- list(...)
+  # list2env(args,envir=.GlobalEnv)
   
   # Finite difference approximation for the Hessian matrix if the 'hess'
   # argument is missing
-  define_hessian <- function(theta,...){
+  define_hessian <- function(theta){
     Hfd <- matrix(0, length(theta), length(theta))
     # generate a matrix of 0s to later replace the values with the 
     # second derivatives
-    grad_old <- grad(theta, ...)
     for (i in 1:length(theta)){
+      
+      
+      
       new_theta <- theta
       new_theta[i] <- new_theta[i] + eps
-      Hfd[i,] <- (grad(new_theta, ...) - grad_old) / eps
+      
+      Hfd[i,] <- (grad(new_theta, ...) - grad(theta, ...)) / eps
       # this step computes the second derivatives, Hessian. 
       # second derivatives can be obtained by applying the first principle to
       # 'grad', the gradient function.
@@ -128,7 +131,7 @@ newt <- function(theta, func, grad, hess = NULL, ..., tol = 1e-8, fscale = 1,
   # finite at the initial theta
   if ((abs(func(theta,...)) == Inf) || 
       any(abs(grad(theta,...)) == Inf) || 
-      any(c(abs(hess(theta,...))) == Inf)) {
+      any(c(abs(hess(theta))) == Inf)) {
     stop('Objective function or derivatives not finite at the initial theta')
   }
 
@@ -137,7 +140,7 @@ newt <- function(theta, func, grad, hess = NULL, ..., tol = 1e-8, fscale = 1,
   
   # Loop to search for the theta that minimises the objective function
   while (iter <= maxit){
-    hessian <- hess(new_theta,...)
+    hessian <- hess(new_theta)
     # second derivatives
     
     counter_posdef<-0
@@ -197,11 +200,11 @@ newt <- function(theta, func, grad, hess = NULL, ..., tol = 1e-8, fscale = 1,
       
       # Break the function if the hessian is not positive definite at 
       # convergence
-      if (inherits(try(chol(hess(new_theta,...)), silent = TRUE), "try-error")){
+      if (inherits(try(chol(hess(new_theta)), silent = TRUE), "try-error")){
         warning('Hessian not positive definite at convergence')
         Hi<-NULL
       }else{
-        Hi<-chol2inv(chol(hess(new_theta,...)))
+        Hi<-chol2inv(chol(hess(new_theta)))
       }
       
       
